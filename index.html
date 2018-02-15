@@ -12,6 +12,8 @@
 
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="app.js"></script>
 
   </head>
   <body>
@@ -25,7 +27,7 @@
             Create new...
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" id="data-generator" href="#">Data Generator</a>
+            <a class="dropdown-item" id="data-generator" href="#" v-on:click="add_dg">Data Generator</a>
             <a class="dropdown-item" href="#">Clock</a>
             <a class="dropdown-item" href="#">Calculation</a>
             <a class="dropdown-item" href="#">Visualization</a>
@@ -34,6 +36,11 @@
       </div>
       <div class="col-9" id="desk">
         Welcome to StatDesk!
+        <div class="card" style="width: 18rem;" v-for="widget in widgets" id="app">
+          <!-- <div class="card-body"> -->
+            <h5 class="card-title">{{ widget.title }}</h5>
+          <!-- </div> -->
+        </div>
       </div>
     </div>
   </div>
@@ -41,12 +48,8 @@
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 
-    <script>
+    <!-- <script>
       wow = 0;
-
-      $( function() {
-        $( "#draggable" ).draggable();
-      } );
 
       $( "#data-generator" ).click(function() {
         card = $( '<div class="card" style="width: 18rem;"></div>' );
@@ -58,7 +61,7 @@
         $( "#desk" ).append( card.draggable() );
         wow += 1;
       });
-    </script>
+    </script> -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
