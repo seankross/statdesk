@@ -1,69 +1,53 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/MinPubSub/0.0.2/minpubsub.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.js"></script>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script>
+var handle = subscribe("/roll/1", function(){
+  var roll = Math.floor((Math.random() * 6) + 1);
+  myChart.data.datasets[0].data[roll - 1] += 1;
+  myChart.data.datasets[0].history.push(myChart.data.datasets[0].data.slice());
+  myChart.update();
+});
+</script>
 
-    <title>StatDesk</title>
-
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="app.js"></script>
-
-  </head>
-  <body>
-
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-3" style="background-color: #DCDCDC; padding: 25px">
-        <h1>StatDesk</h1>
-        <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Create new...
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" id="data-generator" href="#" v-on:click="add_dg">Data Generator</a>
-            <a class="dropdown-item" href="#">Clock</a>
-            <a class="dropdown-item" href="#">Calculation</a>
-            <a class="dropdown-item" href="#">Visualization</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-9" id="desk">
-        Welcome to StatDesk!
-        <div class="card" style="width: 18rem;" v-for="widget in widgets" id="app">
-          <!-- <div class="card-body"> -->
-            <h5 class="card-title">{{ widget.title }}</h5>
-          <!-- </div> -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-
-    <!-- <script>
-      wow = 0;
-
-      $( "#data-generator" ).click(function() {
-        card = $( '<div class="card" style="width: 18rem;"></div>' );
-        card_body = $( '<div class="card-body"></div>' );
-        card_body.append( '<h5 class="card-title">Card title ' + wow + '</h5>' );
-        card.append( card_body );
-
-        // hey = $( "<h1>Drag me! " + wow.toString() + "</h1>" ).draggable();
-        $( "#desk" ).append( card.draggable() );
-        wow += 1;
-      });
-    </script> -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </body>
-</html>
+<canvas id="myChart" width="400" height="400"></canvas>
+<script>
+var ctx = document.getElementById("myChart").getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ["1", "2", "3", "4", "5", "6"],
+        datasets: [{
+            label: 'Number of Times Rolled',
+            data: [0, 0, 0, 0, 0, 0],
+            history: [[0, 0, 0, 0, 0, 0]],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+</script>
