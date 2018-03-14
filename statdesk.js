@@ -4,6 +4,18 @@ var state = {};
 state.widgets = {};
 state.number = 0;
 state.data_generating_object_names = [];
+state.colors = ["#3e95cd", "#8e5ea2", "#3cba9f", "#c45850"];
+state.colors_index = 0;
+
+function get_color() {
+  var result = state.colors[state.colors_index];
+  if (state.colors_index === 3) {
+    state.colors_index = 0;
+  } else {
+    state.colors_index += 1;
+  }
+  return result;
+}
 
 // The Sidebar
 
@@ -21,8 +33,24 @@ function sidebarText(value) {
   '<button type="button" class="btn btn-primary" id="{{kind}}-button">{{button_text}}</button>' +
   '</div>';
 
+  var aot_select_template = '<div id="sidebar-text-{{kind}}" class="align-items-center px-3 mt-4 mb-1">' +
+    '<select class="custom-select " id="aot-sidebar-select">' +
+      '{{#dgos}}' +
+      '<option value="{{.}}">{{.}}</option>' +
+      '{{/dgos}}' +
+    '</select>' +
+  '<button type="button" class="btn btn-primary" id="{{kind}}-button">{{button_text}}</button>' +
+  '</div>';
+
   var hist_new_list =
   '<select class="custom-select " id="hist-sidebar-select">' +
+    '{{#dgos}}' +
+    '<option value="{{.}}">{{.}}</option>' +
+    '{{/dgos}}' +
+  '</select>'
+
+  var aot_new_list =
+  '<select class="custom-select " id="aot-sidebar-select">' +
     '{{#dgos}}' +
     '<option value="{{.}}">{{.}}</option>' +
     '{{/dgos}}' +
@@ -33,14 +61,19 @@ function sidebarText(value) {
   } else if (value === "hist") {
     return Mustache.render(hist_select_template, {button_text: "Make New Histogram", kind: "hist",
       dgos: state.data_generating_object_names});
-  } else if(value === "hist_new_list") {
+  } else if (value === "hist_new_list") {
     return Mustache.render(hist_new_list, {dgos: state.data_generating_object_names});
+  } else if (value === "aot"){
+    return Mustache.render(aot_select_template, {button_text: "Make New Average Graph", kind: "aot",
+      dgos: state.data_generating_object_names});
+  } else if (value === "aot_new_list") {
+    return Mustache.render(aot_new_list, {dgos: state.data_generating_object_names});
   } else {
     return Mustache.render(button_template, {button_text: "None", kind: "none"});
   }
 }
 
-var possible_selections = ["die", "hist"];
+var possible_selections = ["die", "hist", "aot"];
 
 for (var i = 0; i < possible_selections.length; i++) {
   $("#widget-sidebar").append(sidebarText(possible_selections[i]));
@@ -63,12 +96,37 @@ $("#widget-sidebar-select").change(function() {
 
 subscribe("/dgos-update", function() {
   $("#hist-sidebar-select").replaceWith(sidebarText("hist_new_list"));
+  $("#aot-sidebar-select").replaceWith(sidebarText("aot_new_list"));
 });
 
 // Dice
 
 function rollDie() {
   return Math.floor((Math.random() * 6) + 1);
+}
+
+function dieAvg(die_array) {
+  var result = 0;
+  for (var i = 0; i < die_array.length; i++) {
+    result += die_array[i];
+  }
+  return (result / die_array.length);
+}
+
+function dieHistoryAverages(die) {
+  var result = [];
+  for (var i = 1; i < state.widgets[die].history.length; i++) {
+    result.push(dieAvg(state.widgets[die].history.slice(0, i)));
+  }
+  return result;
+}
+
+function dieHistoryLabels(die) {
+  var result = [];
+  for (var i = 0; i < state.widgets[die].history.length; i++) {
+    result.push(i + 1);
+  }
+  return result;
 }
 
 function dieHistoryTotals(die) {
@@ -179,9 +237,66 @@ $("#hist-button").click(function () {
                       beginAtZero:true
                   }
               }]
-          }
+          },
+          legend: {
+                  display: false
+               }
       }
   });
+
+  state.number += 1;
+});
+
+// Average Over Time
+
+$("#aot-button").click(function () {
+  var aot_template =
+  '<div class="card" style="width: 18rem; height: 20rem;">' +
+    '<div class="card-body">' +
+      '<h5 class="card-title">' +
+        'aot{{number}} <- {{dgo}}' +
+      '</h5>' +
+      '<canvas id="aot-chart-{{number}}"style="width: 18rem; height: 18rem;"></canvas>' +
+    '</div>' +
+  '</div>';
+
+  var widget_id = ("aot" + state.number).slice();
+  var aot_id = widget_id.slice(-1);
+  state.widgets[widget_id] = {};
+  state.widgets[widget_id].dgo = $("#aot-sidebar-select").val().slice();
+
+  var card = $(Mustache.render(aot_template, {number: state.number, dgo: state.widgets[widget_id].dgo}));
+  $( "#desk" ).append( card.draggable() );
+
+  state.widgets[widget_id].ctx = document.getElementById("aot-chart-" + aot_id).getContext('2d');
+  state.widgets[widget_id].handle = subscribe("/" + state.widgets[widget_id].dgo, function() {
+    state.widgets[widget_id].chart.data.datasets[0].data = dieHistoryAverages(state.widgets[widget_id].dgo);
+    state.widgets[widget_id].chart.data.labels = dieHistoryLabels(state.widgets[widget_id].dgo);
+
+    // if(state.widgets[widget_id].chart.data.labels.length === 0) {
+    //   state.widgets[widget_id].chart.data.labels.push(1);
+    // } else {
+    //   state.widgets[widget_id].chart.data.labels.push(state.widgets[widget_id].chart.data.labels.slice(-1) + 1);
+    // }
+    state.widgets[widget_id].chart.update();
+  });
+  state.widgets[widget_id].chart = new Chart(state.widgets[widget_id].ctx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+        data: [],
+        label: widget_id,
+        borderColor: get_color(),
+        fill: false
+      }]
+  },
+  options: {
+    legend: {
+            display: false
+         }
+  }
+});
 
   state.number += 1;
 });
