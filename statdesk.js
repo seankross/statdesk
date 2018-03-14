@@ -148,7 +148,8 @@ $("#die-button").click(function () {
         '0' +
       '</h6>' +
       '<button type="button" class="btn btn-primary" id="die-roll-button-{{number}}">Roll</button>' +
-      //'{{die_chart}}' +
+      '<span> </span>' +
+      '<button type="button" class="btn btn-primary" id="die-roll-button-10-{{number}}">Roll 10</button>' +
     '</div>' +
   '</div>';
 
@@ -161,13 +162,28 @@ $("#die-button").click(function () {
 
   var click_id = ("#die-roll-button-" + state.number).slice();
   $(click_id).click(function() {
-    console.log(click_id);
     var die_id = click_id.slice(-1);
     var roll = rollDie();
     $("#die-result-" + die_id).text(roll);
     state.widgets["die" + die_id].history.push(roll);
     var publish_id = ("/die" + die_id).slice();
     publish(publish_id);
+  });
+
+  var click_id_10 = ("#die-roll-button-10-" + state.number).slice();
+  $(click_id_10).click(function() {
+    var die_id = click_id_10.slice(-1);
+    var roll = [];
+    for (var i = 0; i < 10; i++) {
+      roll.push(rollDie());
+    }
+
+    $("#die-result-" + die_id).text(roll.slice(-1));
+    for (var i = 0; i < roll.length; i++) {
+      state.widgets["die" + die_id].history.push(roll[i]);
+      var publish_id = ("/die" + die_id).slice();
+      publish(publish_id);
+    }
   });
 
   state.number += 1;
@@ -283,9 +299,9 @@ $("#aot-button").click(function () {
   state.widgets[widget_id].chart = new Chart(state.widgets[widget_id].ctx, {
   type: 'line',
   data: {
-    labels: [],
+    labels: dieHistoryLabels(state.widgets[widget_id].dgo),
     datasets: [{
-        data: [],
+        data: dieHistoryAverages(state.widgets[widget_id].dgo),
         label: widget_id,
         borderColor: get_color(),
         fill: false
