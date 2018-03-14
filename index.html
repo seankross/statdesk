@@ -18,6 +18,14 @@
   <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
       <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Statdesk</a>
+      <div class="navbar-nav order-1 mr-5">
+        <ul class="navbar-nav mr-3">
+          <li class="nav-item text-nowrap">
+            <button type="button" class="btn btn-link" id="help-button" style="color: white;">Help</button>
+            <!-- <a class="nav-link" id="help" style="color: white;"></a> -->
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <div class="container-fluid">
@@ -49,6 +57,14 @@
           </div> -->
 
           <div id="desk">
+          </div>
+
+          <div id="help">
+            <h2>Welcome to Statdesk</h2>
+            <p>To get started, make a new data generating object, like a die.</p>
+            <p>Click "Roll" or "Roll 10" in order to roll the die.</p>
+            <p>To see how many times the die has landed on a certain side, create a new "histogram" widget.</p>
+            <p>If you want to track the average value of your die rolls across time, create a new "average" widget.</p>
           </div>
 
           <!-- <canvas id="myChart" width="100" height="100"></canvas> -->

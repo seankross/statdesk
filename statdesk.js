@@ -17,6 +17,19 @@ function get_color() {
   return result;
 }
 
+// Help
+
+$("#help").toggle();
+$("#help-button").click(function () {
+  $("#help").toggle();
+  $("#desk").toggle();
+  if ($("#help-button").text() === "Help") {
+    $("#help-button").text("Hide Help");
+  } else {
+    $("#help-button").text("Help");
+  }
+});
+
 // The Sidebar
 
 function sidebarText(value) {
